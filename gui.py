@@ -1,5 +1,9 @@
 import ctypes
 import os
+import BasicProcessor
+import LinearFilter
+import NonLinearFilter
+import Segmentaion
 from tkinter import *
 from tkinter import filedialog, ttk
 import cv2
@@ -57,7 +61,7 @@ def open_popup_slide(text):
 def draw_before_canvas():
     global original_img, ip_file
     original_img = Image.open(ip_file)
-    original_img = original_img.convert("RGB")
+    original_img = original_img.convert("L")
     width, height = before_canvas.winfo_width(), before_canvas.winfo_height()
     resized_img = original_img.resize((width, height))
     img = ImageTk.PhotoImage(resized_img)
@@ -67,7 +71,14 @@ def draw_before_canvas():
         image=img,
         anchor="center",
     )
+    after_canvas.create_image(
+        width/2,
+        height/2,
+        image=img,
+        anchor="center",
+    )
     before_canvas.img = img
+    after_canvas.img = img
 
 def draw_after_canvas(mimg):
     global modified_img
@@ -112,7 +123,7 @@ def save_file():
             )
         ],
     )
-    modified_img = modified_img.convert("RGB")
+    modified_img = modified_img.convert("L")
     modified_img.save(op_file)
 
 
@@ -155,40 +166,16 @@ after_canvas.pack(expand=1)
 save_btn = ttk.Button(right_frame, text="Save", command=save_file)
 save_btn.pack(expand=1, anchor=SE, pady=(5, 0))
 
-
 # algorithm fns
-def equalize_histogram(img):
-    hist = calculate_histogram(img)
-
-    cumsum = np.zeros(256)
-    cumsum[0] = hist[0]
-
-    for i in range(1, 256):
-        cumsum[i] = cumsum[i-1] + hist[i]
-
-    new_img = np.zeros(img.shape, dtype="int")
-    for i in range(img.shape[0]):
-        for j in range(img.shape[1]):
-            new_img[i][j] = round(255 * cumsum[img[i][j]] / cumsum[255])
-    return new_img
-
-def calculate_histogram(img):
-    histogram = np.zeros(256)
-    for row in img:
-        for pixel in row:
-            histogram[pixel] += 1
-    return histogram
-
 def show_histogram():
     img = cv2.imread(ip_file, 0)
-    hist = calculate_histogram(img)
-    plt.hist(hist.ravel(), bins=256, range=(0, 255), alpha=0.5, color='blue')
+    plt.hist(img.ravel(), bins=256, range=(0, 255), alpha=0.5, color='blue')
     plt.xlim([0, 256])
     plt.legend(['Original Image'])
     plt.show()
 def show_eq():
     img = cv2.imread(ip_file, 0)
-    equ_img = equalize_histogram(img)
+    equ_img = BasicProcessor.equalize_histogram(img)
     plt.hist(equ_img.ravel(), bins=256, range=(0, 255), alpha=0.5, color='red')
     plt.xlim([0, 256])
     plt.legend(['Equalized Image'])
@@ -198,6 +185,13 @@ def show_eq():
 
 # algorithm btns
 ttk.Button(
+    scrollable_algo_frame,
+    text="Show Histogram",
+    width=30,
+    command=show_histogram,
+).pack(pady=2, ipady=2)
+
+ttk.Button(
     scrollable_algo_frame, 
     text="Cân bằng histogram", 
     width=30, 
@@ -206,14 +200,14 @@ ttk.Button(
 
 ttk.Button(
     scrollable_algo_frame,
-    text="Show Histogram",
+    text="Nhị phân hoá",
     width=30,
-    command=show_histogram,
+    # command=,
 ).pack(pady=2, ipady=2)
 
 ttk.Button(
     scrollable_algo_frame,
-    text="Chỉnh độ sáng",
+    text="Đảo ảnh",
     width=30,
     # command=,
 ).pack(pady=2, ipady=2)
@@ -228,6 +222,20 @@ ttk.Button(
 ttk.Button(
     scrollable_algo_frame,
     text="Tìm biên Laplace",
+    width=30,
+    # command=,
+).pack(pady=2, ipady=2)
+
+ttk.Button(
+    scrollable_algo_frame,
+    text="Tìm biên Robert",
+    width=30,
+    # command=,
+).pack(pady=2, ipady=2)
+
+ttk.Button(
+    scrollable_algo_frame,
+    text="Tìm biên Prewitt",
     width=30,
     # command=,
 ).pack(pady=2, ipady=2)
@@ -281,5 +289,18 @@ ttk.Button(
     # command=,
 ).pack(pady=2, ipady=2)
 
+ttk.Button(
+    scrollable_algo_frame,
+    text="Phân đoạn\n(cắt ngưỡng toàn cục)",
+    width=30,
+    # command=,
+).pack(pady=2, ipady=2)
+
+ttk.Button(
+    scrollable_algo_frame,
+    text="Phân đoạn Kmeans",
+    width=30,
+    # command=,
+).pack(pady=2, ipady=2)
 
 root.mainloop()
