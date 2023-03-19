@@ -49,5 +49,8 @@ def gamma(img, gamma, c):
 def logarit(img, c):
     return float(c) * np.log(1.0 + img)
 
-def binary(img, th):
+def binary(img, th=128):
     return img > th
+
+def dao_anh(img):
+    return 255-img
