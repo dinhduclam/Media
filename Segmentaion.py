@@ -81,7 +81,7 @@ def phan_doan_kmeans(img, k):
             max_change = max(max_change, abs(mg[i] - t[i]))
             t[i] = mg[i]
 
-        if max_change < 1:
+        if max_change < 2:
             break
 
     for i in range(k):
