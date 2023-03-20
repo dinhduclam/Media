@@ -28,10 +28,10 @@ def equalize_histogram(img):
     for i in range(1, 256):
         cumsum[i] = cumsum[i-1] + hist[i]
 
-    new_img = np.zeros(img.shape, dtype="int")
+    new_img = np.zeros(img.shape, dtype="i4")
     for i in range(img.shape[0]):
         for j in range(img.shape[1]):
-            new_img[i][j] = round(255 * cumsum[img[i][j]] / cumsum[255])
+            new_img[i][j] = round(255 * cumsum[int(img[i][j])] / cumsum[255])
 
     return new_img
 
@@ -39,7 +39,7 @@ def calculate_histogram(img):
     histogram = np.zeros(256)
     for row in img:
         for pixel in row:
-            histogram[pixel] += 1
+            histogram[int(pixel)] += 1
 
     return histogram
 
