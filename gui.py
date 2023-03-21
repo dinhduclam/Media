@@ -95,7 +95,7 @@ def draw_after_canvas(mimg):
     )
     after_canvas.img = img
 
-    current_img = mimg
+    current_img = mimg.astype(int)
 
 
 
@@ -190,6 +190,9 @@ def show_eq():
     draw_after_canvas(new_img)
     plt.show()
 
+def cat_mp_bit():
+    BasicProcessor.cat_mp_bit(current_img)
+
 def binary():
     new_img = BasicProcessor.binary(current_img)
     draw_after_canvas(new_img)
@@ -263,6 +266,13 @@ ttk.Button(
     width=30, 
     command=show_eq,
 ).pack(expand=1, padx=5, pady=2, ipady=2)
+
+ttk.Button(
+    scrollable_algo_frame,
+    text="Hiển thị lát cắt mặt phẳng bit",
+    width=30,
+    command=cat_mp_bit,
+).pack(pady=2, ipady=2)
 
 ttk.Button(
     scrollable_algo_frame,
